@@ -1,5 +1,11 @@
 class ApiError extends Error {
-  constructor(statusCode, message = "Something went wrong", errors = []) {
+  constructor(
+    statusCode, 
+    message = "Something went wrong", 
+    errors = [],
+    stack=""
+
+  ) {
     
     // The super(message) call invokes the constructor of the parent Error class and passes the message argument to it.
     super(message);
@@ -8,6 +14,12 @@ class ApiError extends Error {
     this.message = message;
     this.success = false;
     this.errors = errors;
+
+    if(stack){
+      this.stack=stack
+    }else{
+      Error.captureStackTrace(this, this.constructor)
+    }
   }
 }
 export { ApiError };

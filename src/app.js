@@ -22,5 +22,13 @@ app.use(express.static('public'))
 // to access and work on clients cookies
 app.use(cookieParser())
 
+// routes import 
+import userRouter from "./routes/user.routes.js"
+
+
+// Routes declearation
+app.use("/api/v1/users",userRouter)
+
+
 export {app}
 
