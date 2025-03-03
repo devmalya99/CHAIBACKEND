@@ -19,31 +19,37 @@ const registerUser = asyncHandler(async(req,res)=>{
     // check for user creation
     //return res
 
-    const {fullName, email, username, password}=req.body
+    const {fullName, email, userName, password}=req.body
 
     // validation
     if(fullName===""){
         throw new ApiError(400,"fullName is required")
     }
 
-    if([fullName,email,username,password].some((field)=>field?.trim()==="")){
+    if([fullName,email,userName,password].some((field)=>field?.trim()==="")){
         throw new ApiError(400,"all fields are required")
     }
 
     // Validate if user already exists or not
 
-    const existedUser=User.findOne({
-        $or: [{username},{email}]
+    const existedUser=await User.findOne({
+        $or: [{userName},{email}]
     })
 
     if(existedUser){
-        throw new ApiError(409,"user with same username and email allready exists")
+        throw new ApiError(409,"user with same userName and email allready exists")
     }
+
+    //clg for debugging
+    console.log(req.files)
 
     // avatar and cover images validations
     const avatarLocalPath = req.files?.avatar[0]?.path;
 
-    const coverImageLocalPath=req.files?.coverImage[0]?.coverImage[0]?.path
+    //clg for debugging
+    console.log("avatarLocalPath",avatarLocalPath)
+
+    const coverImageLocalPath=req.files?.coverImage[0]?.path
 
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar file is required")
@@ -51,6 +57,8 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     // upload on cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath)
+    //clg for debugging
+    console.log("AVATR",avatar)
     const coverImage= await uploadOnCloudinary(coverImageLocalPath)
 
     // validation of avatar and cover image on cloudinary if its uploaded or not
@@ -64,7 +72,7 @@ const registerUser = asyncHandler(async(req,res)=>{
         coverImage:coverImage?.url || "",
         email,
         password,
-        username: username.toLowerCase()
+        userName: userName.toLowerCase()
 
     })
 
@@ -79,7 +87,6 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     // lets send the complete response
     return res.status(201).json(
-
         new ApiResponse(200,createdUser,"User Registered Successfully")
     )
 
